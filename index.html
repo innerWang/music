@@ -207,9 +207,8 @@
 			$('.music-detail .song-name').innerText = songObj.songName
 			$('.music-detail .singer').innerText = songObj.singer
 			/*$('.cover').style.backgroundImage = 'url(' + songObj.img + ')'*/
-			audioObj.play()
-			$('.music-control .play').classList.remove('icon-play')
-			$('.music-control .play').classList.add('icon-pause')
+
+			$('.music-progress .progress-now').style.width = '0'
 
 			audioObj.oncanplay = function(){
 				var totalmin = ''+Math.floor(audioObj.duration/60)
@@ -218,6 +217,10 @@
 				totalsec = (totalsec.length ===1)?('0'+totalsec):totalsec
 				$('.music-progress .total-time').innerText = totalmin +':'+totalsec
 			}
+
+			audioObj.play()
+			$('.music-control .play').classList.remove('icon-play')
+			$('.music-control .play').classList.add('icon-pause')
 		}
 
 
