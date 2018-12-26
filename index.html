@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>音乐播放器</title>
+	<link rel="stylesheet" href="//at.alicdn.com/t/font_981031_7ou4qho8oqq.css">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		ul {
+			list-style: none;
+		}
+
+		body {
+			height: 100vh;
+		}
+
+		.cover {
+			background: linear-gradient(to left top,rgba(71,201,241,0.3),rgba(185,172,237,0.3)),url(http://pic1.win4000.com/wallpaper/3/5796c6a044143.jpg), center,no-repeat;
+			background-size: cover;
+			height: 100vh;
+		}
+
+		.musicbox {
+			width: 400px;
+			position: absolute;
+			top: 40%;
+			left: 50%;
+			transform: translate(-50%,-50%);
+		}
+
+		.music-panel {
+			border: 1px solid #d1d1d1;
+			border-radius: 3px;
+			background: rgba(244,222,152,0.3);
+		}
+		
+		.music-progress {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin: 10px 15px;
+			font: 14px/1.5 Arial;
+		}
+
+		.bar {
+			width: 250px;
+			background: #ddd;
+			height: 3px;
+			margin: auto;
+			cursor: pointer;
+		}
+		
+		.bar .progress-now {
+			height: 3px;
+			width: 0;
+			background: #ea502c;
+		}
+		
+		.music-control {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin: 15px;
+		}
+
+		.music-control .iconfont {
+			font-size: 25px;
+			cursor: pointer;
+		}
+
+		.music-control .iconfont.play {
+			font-size: 30px;
+		}
+
+		.music-detail {
+			margin: 10px auto;
+			text-align: center;
+		}
+
+		.music-detail .song-name,
+		.music-detail .singer {
+			padding: 5px;
+			font-size: 15px;
+		}
+		
+
+		.music-list {
+			position: absolute;
+			top: 100%;
+			border: 1px solid #d1d1d1;
+			border-radius: 4px;
+			width: 400px;
+			display: none;
+			background: rgba(237,192,192,0.3);
+/*			height: 20vh;
+			overflow: auto;*/
+		}
+
+		.music-list li {
+			font-size: 12px;
+			font-weight: bold;
+			padding: 10px;
+			border-bottom: 1px solid #f1f1f1;
+		}
+
+		.music-list li:last-child {
+			border: none;
+		}
+
+		.music-list li:hover {
+			cursor: pointer;
+			background: rgba(0,0,0,0.2);
+		}
+
+
+
+	</style>
+</head>
+<body>
+	<div class="cover"></div>
+	<div class="musicbox">
+		<div class="music-panel">
+			<div class="music-detail">
+				<div class="song-name">song-name</div>
+				<div class="singer">singer</div>
+			</div>
+			<div class="music-progress">
+				<div class="current-time">00:00</div>
+				<div class="bar">
+					<div class="progress-total"></div>
+					<div class="progress-now"></div>
+				</div>
+				<div class="total-time">05:00</div>
+			</div>
+			<div class="music-control">
+				<span><i class="iconfont icon-random sequence"></i></span>
+				<span><i class="iconfont icon-prev"></i></span>
+				<span><i class="iconfont icon-pause play"></i></span>
+				<span><i class="iconfont icon-next"></i></span>
+				<span><i class="iconfont icon-list"></i></span>
+			</div>
+		</div>
+		<ul class="music-list">
+			
+		</ul>
+	</div>
+
+
+	<script>
+
+		var musicList = [
+			{
+				src: '/musicSrc/消愁.mp3',
+				songName: '消愁',
+				singer: '毛不易',
+				img: 'https://tse1.mm.bing.net/th?id=OIP.3smJDMQBgDc-iIcF-HC2swHaEo&pid=Api'
+			},
+			{
+				src: '/musicSrc/只要平凡.mp3',
+				songName: '只要平凡',
+				singer: '张杰/张碧晨',
+				img: 'http://image.kejixun.com/2018/0710/20180710040420936.png'
+			},
+			{
+				src: '/musicSrc/爱你.mp3',
+				songName: '爱你',
+				singer: '陈芳语',
+				img: 'https://tse3.mm.bing.net/th?id=OIP.XN5mjokX6AB5PIklQ_8qjQHaEn&pid=Api'
+			}
+		]
+
+		var currentIndex = 0
+		var audioObj = new Audio()
+		/*audioObj.autoplay = true */
+		var timer
+
+		function $(selector){
+			return document.querySelector(selector)
+		}
+
+		
+		getMusic()
+
+		function getMusic(){
+			setMusicList()
+			loadMusic(musicList[currentIndex])
+		}
+
+		function setMusicList(){
+			var container = document.createDocumentFragment()
+			var i = 1
+			musicList.forEach(function(musicObj){
+				var node = document.createElement('li')
+				node.innerText = (i++) +'. '+ musicObj.songName  + ' - '+musicObj.singer
+				container.appendChild(node)
+			})
+			$('.music-list').appendChild(container)
+		}
+
+		function loadMusic(songObj){		
+			audioObj.src = songObj.src
+			$('.music-detail .song-name').innerText = songObj.songName
+			$('.music-detail .singer').innerText = songObj.singer
+			/*$('.cover').style.backgroundImage = 'url(' + songObj.img + ')'*/
+			audioObj.play()
+			$('.music-control .play').classList.remove('icon-play')
+			$('.music-control .play').classList.add('icon-pause')
+
+			audioObj.oncanplay = function(){
+				var totalmin = ''+Math.floor(audioObj.duration/60)
+				var totalsec = ''+Math.floor(audioObj.duration%60)
+				totalmin = (totalmin.length ===1)?('0'+totalmin):totalmin
+				totalsec = (totalsec.length ===1)?('0'+totalsec):totalsec
+				$('.music-progress .total-time').innerText = totalmin +':'+totalsec
+			}
+		}
+
+
+		$('.music-control .play').onclick = function(){
+			/*audioObj.autoplay = false*/
+			if(audioObj.paused){
+				audioObj.play()
+			}else{
+				audioObj.pause()
+			}
+			this.classList.toggle('icon-play')
+			this.classList.toggle('icon-pause')
+		}
+
+
+		$('.music-control .icon-next').onclick = function(){
+			currentIndex++
+			currentIndex = currentIndex % musicList.length
+			loadMusic(musicList[currentIndex])
+		}
+
+		$('.music-control .icon-prev').onclick = function(){
+			currentIndex = (musicList.length + (--currentIndex))%musicList.length
+			loadMusic(musicList[currentIndex])
+		}
+
+
+		function updateProgress(){
+			var percent = (audioObj.currentTime / audioObj.duration) *100 + '%'
+			$('.music-progress .progress-now').style.width = percent
+
+			var curMin = ''+Math.floor(audioObj.currentTime/60)
+			var curSec = ''+Math.floor(audioObj.currentTime%60)
+			curMin = (curMin.length ===1)?('0'+curMin):curMin
+			curSec = (curSec.length ===1)?('0'+curSec):curSec
+			$('.music-progress .current-time').innerText = curMin +':'+curSec
+		}
+
+		audioObj.onplaying = function(){
+			timer = setInterval(function(){
+				updateProgress()
+			},1000)
+		}
+
+		audioObj.onpause = function(){
+			clearInterval(timer)
+		}
+
+		/*一开始内部的li还不存在，所以需要使用事件代理*/
+		$('.music-list').onclick = function(e){
+			if(e.target.tagName.toLowerCase()==='li'){
+				for(var i=0;i<this.children.length;i++){
+					if(this.children[i] === e.target){
+						currentIndex = i
+					}
+				}
+				loadMusic(musicList[currentIndex])
+			}
+		}
+
+		$('.music-progress .bar').onclick = function(e){
+			var percent = e.offsetX / parseInt(getComputedStyle(this).width)
+			audioObj.currentTime = percent * audioObj.duration
+			$('.music-progress .progress-now').style.width = percent * 100 +'%'
+		}
+
+		var sequenceBtn = $('.music-control .sequence')
+		audioObj.onended = function(){
+			if(sequenceBtn.classList.contains('icon-loop-one')){
+				loadMusic(musicList[currentIndex])
+			}else if(sequenceBtn.classList.contains('icon-cycle')){
+				currentIndex++
+				currentIndex = currentIndex % musicList.length
+				loadMusic(musicList[currentIndex])
+			}else{
+				currentIndex += 2
+				currentIndex = currentIndex % musicList.length
+				loadMusic(musicList[currentIndex])
+			}
+		}
+
+		sequenceBtn.onclick = function(){
+			if(this.classList.contains('icon-random')){
+				this.classList.toggle('icon-loop-one')
+				this.classList.toggle('icon-random')
+			}else if(this.classList.contains('icon-loop-one')){
+				this.classList.toggle('icon-loop-one')
+				this.classList.toggle('icon-cycle')
+			}else{
+				this.classList.toggle('icon-random')
+				this.classList.toggle('icon-cycle')
+			}
+		}
+
+		var clickListBtn = false
+		var listBtn = $('.music-control .icon-list')
+		listBtn.onclick = function(){
+			if(clickListBtn === false){
+				clickListBtn = true
+				$('.music-list').style.display = 'block'
+			}else if(clickListBtn === true){
+				clickListBtn = false
+				$('.music-list').style.display = 'none'
+			}
+		}
+
+
+		
+
+	</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
