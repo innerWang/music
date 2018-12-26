@@ -204,13 +204,13 @@
 
 		function loadMusic(songObj){		
 			audioObj.src = songObj.src
-			$('.music-detail .song-name').innerText = songObj.songName
-			$('.music-detail .singer').innerText = songObj.singer
-			/*$('.cover').style.backgroundImage = 'url(' + songObj.img + ')'*/
-
-			$('.music-progress .progress-now').style.width = '0'
 
 			audioObj.oncanplay = function(){
+				$('.music-detail .song-name').innerText = songObj.songName
+				$('.music-detail .singer').innerText = songObj.singer
+				/*$('.cover').style.backgroundImage = 'url(' + songObj.img + ')'*/
+
+				$('.music-progress .progress-now').style.width = '0'
 				var totalmin = ''+Math.floor(audioObj.duration/60)
 				var totalsec = ''+Math.floor(audioObj.duration%60)
 				totalmin = (totalmin.length ===1)?('0'+totalmin):totalmin
